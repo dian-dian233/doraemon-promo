@@ -167,17 +167,35 @@
     border-bottom-color: var(--blue-pale);
   }
 
-  /* ---------- 首屏 ---------- */
+  /* ---------- 首屏：CSS 3D 视差 ---------- */
   .hero {
+    min-height: min(84vh, 720px);
+    padding-block: clamp(56px, 9vw, 118px) clamp(52px, 8vw, 104px);
+    perspective: 1100px;
+    perspective-origin: 50% 38%;
+  }
+
+  /* 整块做一个 3D 容器：鼠标只写 --rx / --ry 两个变量，这里只做 transform */
+  .hero-stage {
     display: grid;
     grid-template-columns: minmax(0, 1.06fr) minmax(0, .94fr);
     align-items: center;
     gap: clamp(20px, 4vw, 56px);
-    min-height: min(84vh, 720px);
-    padding-block: clamp(56px, 9vw, 118px) clamp(52px, 8vw, 104px);
+    --rx: 0;
+    --ry: 0;
+    transform-style: preserve-3d;
+    transform: rotateX(calc(var(--ry) * -2.2deg)) rotateY(calc(var(--rx) * 2.6deg));
+    transition: transform .45s ease-out;
+    will-change: transform;
   }
 
+  /* 指针在窗口里移动时不要过渡，跟着指针立刻走；离开窗口再把过渡放回来 */
+  .hero-stage.is-live { transition: none; }
+
   .hero-copy { min-width: 0; }
+
+  .hero-copy,
+  .hero-art { transform-style: preserve-3d; }
 
   .eyebrow {
     margin: 0 0 clamp(18px, 3vw, 30px);
@@ -186,6 +204,8 @@
     letter-spacing: .22em;
     text-transform: uppercase;
     color: var(--muted-2);
+    /* 深度 6px：最远的一层，错动幅度最小 */
+    transform: translate3d(calc(var(--rx) * -4px), calc(var(--ry) * -3px), 6px);
   }
 
   .eyebrow span {
@@ -204,6 +224,8 @@
     letter-spacing: -.05em;
     font-weight: 900;
     color: var(--blue-ink);
+    /* 深度 44px：最近的一层，错动幅度最大 */
+    transform: translate3d(calc(var(--rx) * 13px), calc(var(--ry) * 8px), 44px);
   }
 
   h1 .accent { color: var(--blue); }
@@ -218,6 +240,7 @@
     letter-spacing: .02em;
     color: var(--blue-deep);
     text-wrap: pretty;
+    transform: translate3d(calc(var(--rx) * 7px), calc(var(--ry) * 5px), 18px);
   }
 
   .slogan em {
@@ -229,6 +252,8 @@
     display: flex;
     justify-content: center;
     min-width: 0;
+    /* 插画层夹在标题和 slogan 之间，左右错动方向与文字相反，做出空间感 */
+    transform: translate3d(calc(var(--rx) * 10px), calc(var(--ry) * 6px), 36px);
   }
 
   .hero-art svg {
@@ -329,7 +354,7 @@
     text-wrap: balance;
   }
 
-  /* ---------- 道具：可展开卡片 ---------- */
+  /* ---------- 道具：CSS 3D 翻转卡片 ---------- */
   .cards {
     list-style: none;
     margin: 0;
@@ -340,9 +365,29 @@
     align-items: start;
   }
 
+  /* 透视放在卡片自己身上，翻面才有厚度 */
   .card {
     position: relative;
     min-width: 0;
+    perspective: 1000px;
+  }
+
+  /* 没有 JS 时两面就是普通的上下堆叠（内容全可读），有 JS 才叠成一格并做 3D 翻转 */
+  .js .card-flip {
+    display: grid;
+    transform-style: preserve-3d;
+    transform: rotateY(0deg);
+    transition: transform .52s cubic-bezier(.3, .85, .3, 1);
+  }
+
+  .js .card[data-flipped="true"] .card-flip { transform: rotateY(180deg); }
+
+  /* 两面叠在同一格里：高度取两面中高的那个，翻面不牵动布局 */
+  .card-face {
+    grid-area: 1 / 1;
+    position: relative;
+    display: flex;
+    flex-direction: column;
     padding: 22px 22px 20px;
     background: #fff;
     border: 1px solid var(--line);
@@ -351,15 +396,25 @@
     transition: border-color .2s ease, box-shadow .2s ease;
   }
 
-  .card:hover,
-  .card[data-open="true"] {
+  .js .card-face {
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+  }
+
+  .card:hover .card-face {
     border-color: #a8c6ee;
     box-shadow: 0 1px 0 rgba(10, 37, 64, .05), 0 16px 30px -20px rgba(10, 37, 64, .55);
   }
 
+  .card-back {
+    background: #f7fbff;
+  }
+
+  .js .card-back { transform: rotateY(180deg); }
+
   .card-num {
     position: absolute;
-    top: 22px;
+    top: 20px;
     right: 20px;
     font-size: 12px;
     font-weight: 800;
@@ -389,7 +444,7 @@
     width: 100%;
     min-height: 44px;
     margin: 0;
-    padding: 8px 0 6px;
+    padding: 4px 0;
     font: inherit;
     font-size: 21px;
     font-weight: 800;
@@ -409,82 +464,80 @@
     color: var(--muted-2);
   }
 
+  /* 翻面提示：一个回转箭头，不再表示展开 */
   .card-sign {
-    position: relative;
-    width: 20px;
-    height: 20px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
     margin-left: auto;
     align-self: center;
     flex: none;
     border-radius: 50%;
     border: 2px solid var(--blue-deep);
-    transition: transform .22s ease, background-color .22s ease;
+    color: var(--blue-deep);
+    font-size: 13px;
+    line-height: 1;
+    transition: transform .22s ease;
   }
 
-  .card-sign::before,
-  .card-sign::after {
-    content: "";
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    background: var(--blue-deep);
-    transition: opacity .22s ease;
-  }
+  .card-sign::before { content: "↻"; }
 
-  .card-sign::before {
-    width: 9px;
-    height: 2px;
-    transform: translate(-50%, -50%);
-  }
+  .card:hover .card-sign { transform: rotate(-90deg); }
 
-  .card-sign::after {
-    width: 2px;
-    height: 9px;
-    transform: translate(-50%, -50%);
-  }
-
-  .card[data-open="true"] .card-sign { transform: rotate(90deg); }
-  .card[data-open="true"] .card-sign::after { opacity: 0; }
-
-  .card-teaser {
-    margin: 10px 0 0;
-    font-size: 15px;
-    line-height: 1.7;
-    color: var(--muted);
-  }
-
-  /* 展开面板：0fr → 1fr 的高度过渡 */
-  .card-panel {
-    display: grid;
-    grid-template-rows: 0fr;
-    transition: grid-template-rows .3s ease;
-  }
-
-  .card[data-open="true"] .card-panel { grid-template-rows: 1fr; }
-
-  .card-panel > div {
-    overflow: hidden;
-    min-height: 0;
-  }
-
-  .card-panel p {
-    margin: 0;
-    font-size: 15px;
-    line-height: 1.7;
-    color: var(--muted);
-  }
-
-  .card-panel p:first-child {
+  .card-hint {
+    margin: auto 0 0;
     padding-top: 12px;
-    border-top: 1px dashed var(--line);
-    margin-top: 12px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: .14em;
+    color: var(--muted-2);
   }
 
-  .card-panel .trait {
-    padding-bottom: 4px;
+  /* 背面：一句说明 + 一行补充 + 一个返回按钮 */
+  .card-say {
+    margin: 0;
+    font-size: 16.5px;
+    font-weight: 800;
+    line-height: 1.55;
+    letter-spacing: -.01em;
+    color: var(--blue-ink);
+  }
+
+  .card-note {
+    margin: 8px 0 0;
+    font-size: 14px;
+    line-height: 1.7;
+    color: var(--muted);
+  }
+
+  .card-trait {
+    margin: 12px 0 0;
+    padding-top: 10px;
+    border-top: 1px dashed #cfe0f6;
     font-size: 13px;
     font-weight: 700;
     color: var(--blue-deep);
+  }
+
+  .card-back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    align-self: flex-start;
+    min-height: 44px;
+    margin-top: auto;
+    padding: 8px 0 0;
+    font: inherit;
+    font-size: 13.5px;
+    font-weight: 700;
+    color: var(--blue-deep);
+    background: none;
+    border: 0;
+    cursor: pointer;
+    text-decoration: underline;
+    text-underline-offset: 3px;
   }
 
   /* ---------- 为什么 ---------- */
@@ -596,6 +649,9 @@
     position: relative;
     height: 196px;
     margin-top: 16px;
+    /* 口袋自己有透视，里面的道具才能沿 Z 轴飞出来 */
+    perspective: 560px;
+    perspective-origin: 50% 100%;
   }
 
   .pocket-body {
@@ -627,6 +683,7 @@
     padding: 0;
     position: absolute;
     inset: 0;
+    transform-style: preserve-3d;
   }
 
   .pocket-item {
@@ -635,7 +692,7 @@
     width: 48px;
     height: 48px;
     opacity: 0;
-    transform: translateY(14px) scale(.7);
+    transform: translate3d(0, 14px, -70px) scale(.66) rotate(-10deg);
     transform-origin: 50% 100%;
   }
 
@@ -651,7 +708,8 @@
   }
 
   .pocket-stage[data-open="true"] .pocket-item {
-    animation: pop-out .56s cubic-bezier(.22, .9, .3, 1.15) forwards;
+    animation: pop-out .62s cubic-bezier(.22, .9, .3, 1.15) forwards;
+    will-change: transform, opacity;
   }
 
   .pocket-stage[data-open="true"] .pocket-item:nth-child(1) { animation-delay: 0s; }
@@ -659,10 +717,20 @@
   .pocket-stage[data-open="true"] .pocket-item:nth-child(3) { animation-delay: .12s; }
   .pocket-stage[data-open="true"] .pocket-item:nth-child(4) { animation-delay: .18s; }
 
+  /* 从口袋里沿 Z 轴冲出来：先拔高到眼前，甩一点角度，再落回静止位 */
   @keyframes pop-out {
-    0%   { opacity: 0; transform: translateY(14px) scale(.7); }
-    55%  { opacity: 1; transform: translateY(-64px) scale(1.06); }
-    100% { opacity: 1; transform: translateY(-56px) scale(1); }
+    0% {
+      opacity: 0;
+      transform: translate3d(0, 14px, -70px) scale(.66) rotate(-10deg);
+    }
+    58% {
+      opacity: 1;
+      transform: translate3d(0, -64px, 46px) scale(1.06) rotate(4deg);
+    }
+    100% {
+      opacity: 1;
+      transform: translate3d(0, -56px, 12px) scale(1) rotate(0deg);
+    }
   }
 
   .pocket-out {
@@ -688,10 +756,20 @@
   /* ---------- 响应式 ---------- */
   @media (max-width: 860px) {
     .hero {
-      grid-template-columns: 1fr;
       min-height: 0;
       padding-block: clamp(32px, 7vw, 56px) clamp(40px, 7vw, 64px);
+      perspective: none;
     }
+    .hero-stage {
+      grid-template-columns: 1fr;
+      transform: none;
+      will-change: auto;
+    }
+    /* 单列下不需要视差：各层退回平面，避免 Z 方向的放大把单列挤宽 */
+    .eyebrow,
+    h1,
+    .slogan,
+    .hero-art { transform: none; }
     .hero-art { order: -1; }
     .hero-art svg { max-width: 210px; }
     .why-grid { grid-template-columns: 1fr; }
@@ -725,6 +803,34 @@
       opacity: 1;
       transform: translateY(-56px) scale(1);
     }
+
+    /* 3D 一律降级为平面：不透视、不倾斜、不翻转、不沿 Z 轴飞出 */
+    .hero,
+    .card,
+    .pocket-stage {
+      perspective: none;
+    }
+
+    .hero-stage,
+    .eyebrow,
+    h1,
+    .slogan,
+    .hero-art,
+    .hero-art svg,
+    .card-flip,
+    .card-face {
+      transform: none !important;
+      will-change: auto !important;
+    }
+
+    /* 口袋道具不参与 3D，但仍停在下面那条 translateY 的静止位上 */
+    .pocket-item { will-change: auto !important; }
+
+    /* 翻面改成静态展收：两面改回普通文档流，背面平时不占位，翻开就排在正面下面 */
+    .js .card-flip { display: block; }
+    .js .card-face { backface-visibility: visible; }
+    .js .card-back { display: none; }
+    .js .card[data-flipped="true"] .card-back { display: flex; }
   }
 </style>
 </head>
@@ -748,55 +854,57 @@
 
   <!-- ============ 首屏：只放标题 + slogan ============ -->
   <section class="hero wrap" aria-labelledby="hero-title">
-    <div class="hero-copy">
-      <p class="eyebrow"><span aria-hidden="true"></span>来自 22 世纪 · 猫型机器人</p>
-      <h1 id="hero-title">哆啦<span class="accent">A</span>梦</h1>
-      <p class="slogan">四次元口袋里，永远有一个<em>刚好能用</em>的东西。</p>
-    </div>
+    <div class="hero-stage">
+      <div class="hero-copy">
+        <p class="eyebrow"><span aria-hidden="true"></span>来自 22 世纪 · 猫型机器人</p>
+        <h1 id="hero-title">哆啦<span class="accent">A</span>梦</h1>
+        <p class="slogan">四次元口袋里，永远有一个<em>刚好能用</em>的东西。</p>
+      </div>
 
-    <div class="hero-art">
-      <svg viewBox="0 0 420 420" role="img" aria-label="插画：蓝白配色的猫型机器人头部，白脸、红鼻子、红项圈与黄色铃铛">
-        <circle cx="210" cy="200" r="196" fill="#eaf3fd"/>
-        <circle cx="56" cy="72" r="7" fill="#c6dcf8"/>
-        <circle cx="70" cy="330" r="5" fill="#c6dcf8"/>
-        <circle cx="366" cy="96" r="6" fill="#c6dcf8"/>
-        <circle cx="352" cy="322" r="4" fill="#f4c7d3"/>
+      <div class="hero-art">
+        <svg viewBox="0 0 420 420" role="img" aria-label="插画：蓝白配色的猫型机器人头部，白脸、红鼻子、红项圈与黄色铃铛">
+          <circle cx="210" cy="200" r="196" fill="#eaf3fd"/>
+          <circle cx="56" cy="72" r="7" fill="#c6dcf8"/>
+          <circle cx="70" cy="330" r="5" fill="#c6dcf8"/>
+          <circle cx="366" cy="96" r="6" fill="#c6dcf8"/>
+          <circle cx="352" cy="322" r="4" fill="#f4c7d3"/>
 
-        <!-- 头部 -->
-        <circle cx="210" cy="185" r="158" fill="#1a6dd6"/>
-        <circle cx="210" cy="185" r="158" fill="none" stroke="#0a2540" stroke-width="5"/>
+          <!-- 头部 -->
+          <circle cx="210" cy="185" r="158" fill="#1a6dd6"/>
+          <circle cx="210" cy="185" r="158" fill="none" stroke="#0a2540" stroke-width="5"/>
 
-        <!-- 面部白色区域 -->
-        <ellipse cx="210" cy="236" rx="124" ry="104" fill="#ffffff" stroke="#0a2540" stroke-width="5"/>
+          <!-- 面部白色区域 -->
+          <ellipse cx="210" cy="236" rx="124" ry="104" fill="#ffffff" stroke="#0a2540" stroke-width="5"/>
 
-        <!-- 眼睛 -->
-        <ellipse cx="178" cy="150" rx="34" ry="42" fill="#ffffff" stroke="#0a2540" stroke-width="5"/>
-        <ellipse cx="242" cy="150" rx="34" ry="42" fill="#ffffff" stroke="#0a2540" stroke-width="5"/>
-        <circle cx="188" cy="164" r="9" fill="#0a2540"/>
-        <circle cx="232" cy="164" r="9" fill="#0a2540"/>
+          <!-- 眼睛 -->
+          <ellipse cx="178" cy="150" rx="34" ry="42" fill="#ffffff" stroke="#0a2540" stroke-width="5"/>
+          <ellipse cx="242" cy="150" rx="34" ry="42" fill="#ffffff" stroke="#0a2540" stroke-width="5"/>
+          <circle cx="188" cy="164" r="9" fill="#0a2540"/>
+          <circle cx="232" cy="164" r="9" fill="#0a2540"/>
 
-        <!-- 鼻子与嘴 -->
-        <circle cx="210" cy="203" r="18" fill="#d8322c" stroke="#0a2540" stroke-width="4"/>
-        <circle cx="204" cy="197" r="5" fill="#ffffff" opacity=".55"/>
-        <path d="M210 221v26" stroke="#0a2540" stroke-width="4" stroke-linecap="round"/>
-        <path d="M172 254q38 50 76 0" fill="none" stroke="#0a2540" stroke-width="5" stroke-linecap="round"/>
+          <!-- 鼻子与嘴 -->
+          <circle cx="210" cy="203" r="18" fill="#d8322c" stroke="#0a2540" stroke-width="4"/>
+          <circle cx="204" cy="197" r="5" fill="#ffffff" opacity=".55"/>
+          <path d="M210 221v26" stroke="#0a2540" stroke-width="4" stroke-linecap="round"/>
+          <path d="M172 254q38 50 76 0" fill="none" stroke="#0a2540" stroke-width="5" stroke-linecap="round"/>
 
-        <!-- 胡须 -->
-        <g stroke="#0a2540" stroke-width="4" stroke-linecap="round">
-          <path d="M118 196 62 182"/>
-          <path d="M114 220 62 220"/>
-          <path d="M118 244 68 257"/>
-          <path d="M302 196 358 182"/>
-          <path d="M306 220 358 220"/>
-          <path d="M302 244 352 257"/>
-        </g>
+          <!-- 胡须 -->
+          <g stroke="#0a2540" stroke-width="4" stroke-linecap="round">
+            <path d="M118 196 62 182"/>
+            <path d="M114 220 62 220"/>
+            <path d="M118 244 68 257"/>
+            <path d="M302 196 358 182"/>
+            <path d="M306 220 358 220"/>
+            <path d="M302 244 352 257"/>
+          </g>
 
-        <!-- 项圈与铃铛 -->
-        <path d="M100 296q110 52 220 0v24q-110 54-220 0z" fill="#d8322c" stroke="#0a2540" stroke-width="4" stroke-linejoin="round"/>
-        <circle cx="210" cy="340" r="21" fill="#f2b53c" stroke="#0a2540" stroke-width="4.5"/>
-        <path d="M199 332h22" stroke="#0a2540" stroke-width="3.5" stroke-linecap="round"/>
-        <circle cx="210" cy="350" r="4" fill="#0a2540"/>
-      </svg>
+          <!-- 项圈与铃铛 -->
+          <path d="M100 296q110 52 220 0v24q-110 54-220 0z" fill="#d8322c" stroke="#0a2540" stroke-width="4" stroke-linejoin="round"/>
+          <circle cx="210" cy="340" r="21" fill="#f2b53c" stroke="#0a2540" stroke-width="4.5"/>
+          <path d="M199 332h22" stroke="#0a2540" stroke-width="3.5" stroke-linecap="round"/>
+          <circle cx="210" cy="350" r="4" fill="#0a2540"/>
+        </svg>
+      </div>
     </div>
   </section>
 
@@ -819,97 +927,113 @@
     </div>
 
     <ul class="cards">
-      <li class="card" data-tool data-open="false" data-reveal>
-        <span class="card-num" aria-hidden="true">01</span>
-        <svg class="ico" viewBox="0 0 64 64" aria-hidden="true" focusable="false">
-          <path d="M14 56V21c0-7 8-12 18-12s18 5 18 12v35" fill="#f2a7bb" stroke="#0a2540" stroke-width="3.5" stroke-linejoin="round"/>
-          <path d="M21 56V23c0-5 5.4-8.6 11-8.6S43 18 43 23v33" fill="#fbe1e9" stroke="#0a2540" stroke-width="3" stroke-linejoin="round"/>
-          <circle cx="38" cy="39" r="2.6" fill="#0a2540"/>
-        </svg>
-        <h3 class="card-h">
-          <button class="card-btn" type="button" aria-expanded="false" aria-controls="tool-panel-1" id="tool-btn-1">
-            <span class="card-name">任意门</span>
-            <span class="card-en"><span class="lat" lang="en">Anywhere Door</span></span>
-            <span class="card-sign" aria-hidden="true"></span>
-          </button>
-        </h3>
-        <p class="card-teaser">拉开门，走过去就到了。</p>
-        <div class="card-panel" id="tool-panel-1" role="region" aria-labelledby="tool-btn-1">
-          <div>
-            <p>说一个地名，拉开门，走过去。没有安检，没有换乘，也没有人问你到底几点能到。</p>
-            <p class="trait">适合场景：迟到了，但不想解释</p>
+      <li class="card" data-tool data-flipped="false" data-reveal>
+        <div class="card-flip">
+          <div class="card-face card-front">
+            <span class="card-num" aria-hidden="true">01</span>
+            <svg class="ico" viewBox="0 0 64 64" aria-hidden="true" focusable="false">
+              <path d="M14 56V21c0-7 8-12 18-12s18 5 18 12v35" fill="#f2a7bb" stroke="#0a2540" stroke-width="3.5" stroke-linejoin="round"/>
+              <path d="M21 56V23c0-5 5.4-8.6 11-8.6S43 18 43 23v33" fill="#fbe1e9" stroke="#0a2540" stroke-width="3" stroke-linejoin="round"/>
+              <circle cx="38" cy="39" r="2.6" fill="#0a2540"/>
+            </svg>
+            <h3 class="card-h">
+              <button class="card-btn" type="button" aria-expanded="false" aria-controls="tool-panel-1" id="tool-btn-1">
+                <span class="card-name">任意门</span>
+                <span class="card-en"><span class="lat" lang="en">Anywhere Door</span></span>
+                <span class="card-sign" aria-hidden="true"></span>
+              </button>
+            </h3>
+            <p class="card-hint">点一下翻面</p>
+          </div>
+          <div class="card-face card-back" id="tool-panel-1" role="region" aria-labelledby="tool-btn-1" aria-hidden="true">
+            <p class="card-say">说一个地名，拉开门，走过去。</p>
+            <p class="card-note">没有安检，没有换乘，也没有人问你到底几点能到。</p>
+            <p class="card-trait">适合场景：迟到了，但不想解释</p>
+            <button class="card-back-btn" type="button">翻回正面</button>
           </div>
         </div>
       </li>
 
-      <li class="card" data-tool data-open="false" data-reveal>
-        <span class="card-num" aria-hidden="true">02</span>
-        <svg class="ico" viewBox="0 0 64 64" aria-hidden="true" focusable="false">
-          <rect x="28" y="30" width="8" height="21" rx="4" fill="#f2b53c" stroke="#0a2540" stroke-width="3.5"/>
-          <ellipse cx="18" cy="22" rx="13" ry="4.6" transform="rotate(-12 18 22)" fill="#1a6dd6" stroke="#0a2540" stroke-width="3"/>
-          <ellipse cx="46" cy="22" rx="13" ry="4.6" transform="rotate(12 46 22)" fill="#1a6dd6" stroke="#0a2540" stroke-width="3"/>
-          <circle cx="32" cy="24" r="6.5" fill="#ffffff" stroke="#0a2540" stroke-width="3.5"/>
-        </svg>
-        <h3 class="card-h">
-          <button class="card-btn" type="button" aria-expanded="false" aria-controls="tool-panel-2" id="tool-btn-2">
-            <span class="card-name">竹蜻蜓</span>
-            <span class="card-en"><span class="lat" lang="en">Bamboo Copter</span></span>
-            <span class="card-sign" aria-hidden="true"></span>
-          </button>
-        </h3>
-        <p class="card-teaser">戴上就能飞，速度看心情。</p>
-        <div class="card-panel" id="tool-panel-2" role="region" aria-labelledby="tool-btn-2">
-          <div>
-            <p>戴在头上就能飞，速度看心情。最贴心的地方不是能飞，是你低头就看见整条街，忽然发现自家楼顶挺好看。</p>
-            <p class="trait">适合场景：想换个高度看今天</p>
+      <li class="card" data-tool data-flipped="false" data-reveal>
+        <div class="card-flip">
+          <div class="card-face card-front">
+            <span class="card-num" aria-hidden="true">02</span>
+            <svg class="ico" viewBox="0 0 64 64" aria-hidden="true" focusable="false">
+              <rect x="28" y="30" width="8" height="21" rx="4" fill="#f2b53c" stroke="#0a2540" stroke-width="3.5"/>
+              <ellipse cx="18" cy="22" rx="13" ry="4.6" transform="rotate(-12 18 22)" fill="#1a6dd6" stroke="#0a2540" stroke-width="3"/>
+              <ellipse cx="46" cy="22" rx="13" ry="4.6" transform="rotate(12 46 22)" fill="#1a6dd6" stroke="#0a2540" stroke-width="3"/>
+              <circle cx="32" cy="24" r="6.5" fill="#ffffff" stroke="#0a2540" stroke-width="3.5"/>
+            </svg>
+            <h3 class="card-h">
+              <button class="card-btn" type="button" aria-expanded="false" aria-controls="tool-panel-2" id="tool-btn-2">
+                <span class="card-name">竹蜻蜓</span>
+                <span class="card-en"><span class="lat" lang="en">Bamboo Copter</span></span>
+                <span class="card-sign" aria-hidden="true"></span>
+              </button>
+            </h3>
+            <p class="card-hint">点一下翻面</p>
+          </div>
+          <div class="card-face card-back" id="tool-panel-2" role="region" aria-labelledby="tool-btn-2" aria-hidden="true">
+            <p class="card-say">戴上就能飞，速度看心情。</p>
+            <p class="card-note">最贴心的地方不是能飞，是你低头就看见整条街，忽然发现自家楼顶挺好看。</p>
+            <p class="card-trait">适合场景：想换个高度看今天</p>
+            <button class="card-back-btn" type="button">翻回正面</button>
           </div>
         </div>
       </li>
 
-      <li class="card" data-tool data-open="false" data-reveal>
-        <span class="card-num" aria-hidden="true">03</span>
-        <svg class="ico" viewBox="0 0 64 64" aria-hidden="true" focusable="false">
-          <path d="M13 27c0-9 8.5-15 19-15s19 6 19 15v21c0 3.2-2 5-5 5H18c-3 0-5-1.8-5-5V27z" fill="#eac68f" stroke="#0a2540" stroke-width="3.5" stroke-linejoin="round"/>
-          <path d="M13 27c0-9 8.5-15 19-15s19 6 19 15" fill="none" stroke="#0a2540" stroke-width="3.5"/>
-          <path d="M21 32h22M21 40h15M21 48h20" stroke="#a97c40" stroke-width="3" stroke-linecap="round"/>
-        </svg>
-        <h3 class="card-h">
-          <button class="card-btn" type="button" aria-expanded="false" aria-controls="tool-panel-3" id="tool-btn-3">
-            <span class="card-name">记忆面包</span>
-            <span class="card-en"><span class="lat" lang="en">Memory Bread</span></span>
-            <span class="card-sign" aria-hidden="true"></span>
-          </button>
-        </h3>
-        <p class="card-teaser">把课本印在面包上，吃掉。</p>
-        <div class="card-panel" id="tool-panel-3" role="region" aria-labelledby="tool-btn-3">
-          <div>
-            <p>把课本印在面包上，一片一片吃下去。怀念的不是分数，是那种「原来背书也能这么香」的错觉。</p>
-            <p class="trait">适合场景：明天考试，今天才翻开</p>
+      <li class="card" data-tool data-flipped="false" data-reveal>
+        <div class="card-flip">
+          <div class="card-face card-front">
+            <span class="card-num" aria-hidden="true">03</span>
+            <svg class="ico" viewBox="0 0 64 64" aria-hidden="true" focusable="false">
+              <path d="M13 27c0-9 8.5-15 19-15s19 6 19 15v21c0 3.2-2 5-5 5H18c-3 0-5-1.8-5-5V27z" fill="#eac68f" stroke="#0a2540" stroke-width="3.5" stroke-linejoin="round"/>
+              <path d="M13 27c0-9 8.5-15 19-15s19 6 19 15" fill="none" stroke="#0a2540" stroke-width="3.5"/>
+              <path d="M21 32h22M21 40h15M21 48h20" stroke="#a97c40" stroke-width="3" stroke-linecap="round"/>
+            </svg>
+            <h3 class="card-h">
+              <button class="card-btn" type="button" aria-expanded="false" aria-controls="tool-panel-3" id="tool-btn-3">
+                <span class="card-name">记忆面包</span>
+                <span class="card-en"><span class="lat" lang="en">Memory Bread</span></span>
+                <span class="card-sign" aria-hidden="true"></span>
+              </button>
+            </h3>
+            <p class="card-hint">点一下翻面</p>
+          </div>
+          <div class="card-face card-back" id="tool-panel-3" role="region" aria-labelledby="tool-btn-3" aria-hidden="true">
+            <p class="card-say">把课本印在面包上，一片一片吃下去。</p>
+            <p class="card-note">怀念的不是分数，是那种「原来背书也能这么香」的错觉。</p>
+            <p class="card-trait">适合场景：明天考试，今天才翻开</p>
+            <button class="card-back-btn" type="button">翻回正面</button>
           </div>
         </div>
       </li>
 
-      <li class="card" data-tool data-open="false" data-reveal>
-        <span class="card-num" aria-hidden="true">04</span>
-        <svg class="ico" viewBox="0 0 64 64" aria-hidden="true" focusable="false">
-          <path d="M9 29c4.5-9 12.5-14 23-14" fill="none" stroke="#8fbcf0" stroke-width="3" stroke-linecap="round" stroke-dasharray="4 5"/>
-          <ellipse cx="32" cy="46" rx="23" ry="9" fill="#1a6dd6" stroke="#0a2540" stroke-width="3.5"/>
-          <ellipse cx="32" cy="43" rx="14" ry="5" fill="#dceafd" stroke="#0a2540" stroke-width="2.5"/>
-          <path d="M32 43V21" stroke="#0a2540" stroke-width="3.5" stroke-linecap="round"/>
-          <circle cx="32" cy="15" r="6" fill="#d8322c" stroke="#0a2540" stroke-width="3"/>
-        </svg>
-        <h3 class="card-h">
-          <button class="card-btn" type="button" aria-expanded="false" aria-controls="tool-panel-4" id="tool-btn-4">
-            <span class="card-name">时光机</span>
-            <span class="card-en"><span class="lat" lang="en">Time Machine</span></span>
-            <span class="card-sign" aria-hidden="true"></span>
-          </button>
-        </h3>
-        <p class="card-teaser">坐上去，回到某个下午。</p>
-        <div class="card-panel" id="tool-panel-4" role="region" aria-labelledby="tool-btn-4">
-          <div>
-            <p>坐上去就能回到某个下午。大部分时候我们想回去不是为了改什么，只是想再看一眼那时候的自己。</p>
-            <p class="trait">适合场景：突然很想念某一年</p>
+      <li class="card" data-tool data-flipped="false" data-reveal>
+        <div class="card-flip">
+          <div class="card-face card-front">
+            <span class="card-num" aria-hidden="true">04</span>
+            <svg class="ico" viewBox="0 0 64 64" aria-hidden="true" focusable="false">
+              <path d="M9 29c4.5-9 12.5-14 23-14" fill="none" stroke="#8fbcf0" stroke-width="3" stroke-linecap="round" stroke-dasharray="4 5"/>
+              <ellipse cx="32" cy="46" rx="23" ry="9" fill="#1a6dd6" stroke="#0a2540" stroke-width="3.5"/>
+              <ellipse cx="32" cy="43" rx="14" ry="5" fill="#dceafd" stroke="#0a2540" stroke-width="2.5"/>
+              <path d="M32 43V21" stroke="#0a2540" stroke-width="3.5" stroke-linecap="round"/>
+              <circle cx="32" cy="15" r="6" fill="#d8322c" stroke="#0a2540" stroke-width="3"/>
+            </svg>
+            <h3 class="card-h">
+              <button class="card-btn" type="button" aria-expanded="false" aria-controls="tool-panel-4" id="tool-btn-4">
+                <span class="card-name">时光机</span>
+                <span class="card-en"><span class="lat" lang="en">Time Machine</span></span>
+                <span class="card-sign" aria-hidden="true"></span>
+              </button>
+            </h3>
+            <p class="card-hint">点一下翻面</p>
+          </div>
+          <div class="card-face card-back" id="tool-panel-4" role="region" aria-labelledby="tool-btn-4" aria-hidden="true">
+            <p class="card-say">坐上去，回到某个下午。</p>
+            <p class="card-note">大部分时候我们想回去不是为了改什么，只是想再看一眼那时候的自己。</p>
+            <p class="card-trait">适合场景：突然很想念某一年</p>
+            <button class="card-back-btn" type="button">翻回正面</button>
           </div>
         </div>
       </li>
@@ -998,7 +1122,32 @@
   var doc = document;
   var reduceMQ = window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)') : null;
 
-  /* 1. 滚动进场：不支持或用户要求减少动效时，直接全部显示 */
+  /* 1. 首屏 3D 视差：只写 --rx / --ry 两个变量（-1 ~ 1），鼠标离开窗口回正 */
+  var heroStage = doc.querySelector('.hero-stage');
+  var pos = { x: 0, y: 0 }, queued = false;
+  var paint = function () {
+    queued = false;
+    heroStage.style.setProperty('--rx', pos.x.toFixed(3));
+    heroStage.style.setProperty('--ry', pos.y.toFixed(3));
+  };
+  var aim = function () { if (!queued) { queued = true; window.requestAnimationFrame(paint); } };
+  var home = function () { heroStage.classList.remove('is-live'); pos.x = 0; pos.y = 0; aim(); };
+
+  if (heroStage && !(reduceMQ && reduceMQ.matches)) {
+    window.addEventListener('pointermove', function (e) {
+      heroStage.classList.add('is-live');
+      pos.x = (e.clientX / window.innerWidth - .5) * 2;
+      pos.y = (e.clientY / window.innerHeight - .5) * 2;
+      aim();
+    }, { passive: true });
+    doc.addEventListener('mouseleave', home);
+    window.addEventListener('blur', home);
+    if (reduceMQ && reduceMQ.addEventListener) {
+      reduceMQ.addEventListener('change', function (e) { if (e.matches) { home(); } });
+    }
+  }
+
+  /* 2. 滚动进场：不支持或用户要求减少动效时，直接全部显示 */
   var items = Array.prototype.slice.call(doc.querySelectorAll('[data-reveal]'));
 
   function showAll() {
@@ -1026,45 +1175,36 @@
     }
   }
 
-  /* 2. 道具卡片：点击 / hover 展开，键盘 Tab + Enter 同样可用 */
-  var cards = Array.prototype.slice.call(doc.querySelectorAll('[data-tool]'));
+  /* 3. 道具卡片：CSS 3D 翻转，点正面或用 Enter 翻过去，背面按钮翻回来 */
+  Array.prototype.forEach.call(doc.querySelectorAll('[data-tool]'), function (card) {
+    var front = card.querySelector('.card-btn');
+    var back = card.querySelector('.card-back-btn');
+    var frontFace = card.querySelector('.card-front');
+    var backFace = card.querySelector('.card-back');
+    if (!front || !back) { return; }
 
-  cards.forEach(function (card) {
-    var btn = card.querySelector('.card-btn');
-    if (!btn) { return; }
-
-    function setOpen(open) {
-      card.setAttribute('data-open', open ? 'true' : 'false');
-      btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    function flip(on) {
+      var face = on ? backFace : frontFace;
+      var other = on ? frontFace : backFace;
+      card.setAttribute('data-flipped', on ? 'true' : 'false');
+      front.setAttribute('aria-expanded', on ? 'true' : 'false');
+      /* 焦点先跟到看得见的那一面，再把背过去的那一面移出 Tab 序列和朗读顺序 */
+      face.setAttribute('aria-hidden', 'false');
+      front.tabIndex = on ? -1 : 0;
+      back.tabIndex = on ? 0 : -1;
+      (on ? back : front).focus({ preventScroll: true });
+      other.setAttribute('aria-hidden', 'true');
     }
 
-    function isPinned() { return card.getAttribute('data-pinned') === 'true'; }
+    front.tabIndex = 0;
+    back.tabIndex = -1;
 
-    setOpen(card.getAttribute('data-open') === 'true');
-
-    btn.addEventListener('click', function () {
-      var open = btn.getAttribute('aria-expanded') !== 'true';
-      card.setAttribute('data-pinned', open ? 'true' : 'false');
-      setOpen(open);
-    });
-
-    card.addEventListener('mouseenter', function () {
-      if (!isPinned()) { setOpen(true); }
-    });
-
-    card.addEventListener('mouseleave', function () {
-      if (isPinned()) { return; }
-      if (doc.activeElement === btn) { return; }
-      setOpen(false);
-    });
-
-    btn.addEventListener('blur', function () {
-      if (isPinned()) { return; }
-      setOpen(false);
-    });
+    /* 按钮的原生 click 已覆盖鼠标点击与 Enter / Space */
+    front.addEventListener('click', function () { flip(true); });
+    back.addEventListener('click', function () { flip(false); });
   });
 
-  /* 3. 彩蛋：打开四次元口袋，道具会从口袋里弹出来（减少动效时不做动画） */
+  /* 4. 彩蛋：打开四次元口袋，道具沿 Z 轴弹出来（减少动效时不做动画） */
   var facts = [
     '口袋的入口连着四次元空间，理论上装得下整个世界。大雄曾经在里面找过一只袜子，没找到。',
     '他是量产型的育儿机器人，出厂时掉了一颗螺丝，所以情绪比说明书上写的多一点。',
