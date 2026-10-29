@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>哆啦A梦 · 来自 22 世纪的猫型机器人</title>
+<meta name="description" content="一个关于哆啦A梦的单页介绍：蓝白红的配色、四次元口袋、四件经典道具，以及他为什么一直被人记住。">
+<meta name="color-scheme" content="light">
+<script>document.documentElement.classList.add('js');</script>
+<style>
+  :root {
+    --blue: #1a6dd6;
+    --blue-deep: #0b3f86;
+    --blue-ink: #0a2540;
+    --blue-pale: #dceafd;
+    --red: #d8322c;
+    --red-soft: #f2a7bb;
+    --bell: #f2b53c;
+    --paper: #fbfcfe;
+    --line: #d7e3f4;
+    --muted: #43597a;
+    --radius: 20px;
+    --wrap: 1100px;
+    --font: ui-sans-serif, system-ui, -apple-system, "PingFang SC", "Hiragino Sans GB",
+            "Microsoft YaHei", "Source Han Sans SC", "Noto Sans CJK SC", sans-serif;
+  }
+
+  *,
+  *::before,
+  *::after { box-sizing: border-box; }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    font-family: var(--font);
+    color: var(--blue-ink);
+    background-color: var(--paper);
+    background-image:
+      radial-gradient(circle at 12% 0%, #eef5fe 0, rgba(238, 245, 254, 0) 55%),
+      radial-gradient(circle at 92% 18%, #f4f8ff 0, rgba(244, 248, 255, 0) 45%);
+    background-repeat: no-repeat;
+    line-height: 1.7;
+    font-size: 16px;
+    letter-spacing: .01em;
+  }
+
+  .wrap {
+    width: 100%;
+    max-width: var(--wrap);
+    margin-inline: auto;
+    padding-inline: clamp(20px, 5vw, 40px);
+  }
+
+  a { color: var(--blue-deep); }
+
+  /* ---------- 焦点可见 ---------- */
+  :focus-visible {
+    outline: 3px solid var(--red);
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+
+  /* ---------- 顶部 ---------- */
+  .site-head {
+    border-bottom: 1px solid var(--line);
+    background: var(--paper);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+
+  .head-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    min-height: 64px;
+    flex-wrap: wrap;
+  }
+
+  .brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 800;
+    font-size: 17px;
+    letter-spacing: .06em;
+    text-decoration: none;
+    color: var(--blue-ink);
+  }
+
+  .brand-face {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: var(--blue);
+    border: 2.5px solid var(--blue-ink);
+    position: relative;
+    flex: none;
+  }
+
+  .brand-face::before {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 48%;
+    transform: translate(-50%, -50%);
+    width: 14px;
+    height: 11px;
+    border-radius: 50%;
+    background: #fff;
+  }
+
+  .brand-face::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 46%;
+    transform: translate(-50%, -50%);
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--red);
+  }
+
+  .site-head nav {
+    display: flex;
+    gap: clamp(14px, 3vw, 28px);
+    font-size: 15px;
+  }
+
+  .site-head nav a {
+    text-decoration: none;
+    color: var(--muted);
+    padding-bottom: 2px;
+    border-bottom: 2px solid transparent;
+  }
+
+  .site-head nav a:hover {
+    color: var(--blue-deep);
+    border-bottom-color: var(--blue-pale);
+  }
+
+  /* ---------- 主视觉 ---------- */
+  .hero {
+    display: grid;
+    grid-template-columns: minmax(0, 1.08fr) minmax(0, .92fr);
+    align-items: center;
+    gap: clamp(24px, 5vw, 56px);
+    padding-block: clamp(48px, 8vw, 96px) clamp(40px, 6vw, 80px);
+  }
+
+  .eyebrow {
+    margin: 0 0 18px;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: .22em;
+    text-transform: uppercase;
+    color: var(--blue-deep);
+  }
+
+  .eyebrow span {
+    display: inline-block;
+    width: 26px;
+    height: 2px;
+    margin-right: 10px;
+    vertical-align: middle;
+    background: var(--red);
+  }
+
+  h1 {
+    margin: 0;
+    font-size: clamp(56px, 11vw, 104px);
+    line-height: .96;
+    letter-spacing: -.045em;
+    font-weight: 900;
+    color: var(--blue-ink);
+  }
+
+  h1 .accent {
+    color: var(--blue);
+  }
+
+  .slogan {
+    margin: 22px 0 0;
+    max-width: 30ch;
+    font-size: clamp(20px, 2.5vw, 27px);
+    line-height: 1.5;
+    font-weight: 700;
+    color: var(--blue-deep);
+    text-wrap: balance;
+  }
+
+  .slogan em {
+    font-style: normal;
+    box-shadow: inset 0 -.42em 0 var(--blue-pale);
+  }
+
+  .lede {
+    margin: 20px 0 0;
+    max-width: 38ch;
+    font-size: 16px;
+    color: var(--muted);
+  }
+
+  .cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 32px;
+    padding: 14px 26px;
+    border-radius: 999px;
+    border: 2px solid var(--blue-deep);
+    background: var(--blue-deep);
+    color: #fff;
+    font-size: 15px;
+    font-weight: 700;
+    text-decoration: none;
+    transition: background-color .18s ease, border-color .18s ease;
+  }
+
+  .cta .arrow {
+    display: inline-block;
+    transition: transform .18s ease;
+  }
+
+  .cta:hover {
+    background: #072f63;
+    border-color: #072f63;
+  }
+
+  .cta:hover .arrow { transform: translateX(4px); }
+
+  .hero-art {
+    display: flex;
+    justify-content: center;
+  }
+
+  .hero-art svg {
+    width: 100%;
+    max-width: 420px;
+    height: auto;
+    animation: bob 7s ease-in-out infinite;
+  }
+
+  @keyframes bob {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-9px); }
+  }
+
+  /* ---------- 区块通用 ---------- */
+  .section {
+    padding-block: clamp(40px, 6vw, 72px);
+  }
+
+  .sec-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 20px;
+    flex-wrap: wrap;
+    border-top: 2px solid var(--blue-ink);
+    padding-top: 22px;
+    margin-bottom: 34px;
+  }
+
+  .kicker {
+    margin: 0;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: .18em;
+    color: var(--muted);
+  }
+
+  h2 {
+    margin: 0;
+    font-size: clamp(25px, 3.6vw, 38px);
+    line-height: 1.25;
+    letter-spacing: -.02em;
+    font-weight: 800;
+    max-width: 22ch;
+    text-wrap: balance;
+  }
+
+  /* ---------- 道具卡片 ---------- */
+  .cards {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(238px, 1fr));
+    gap: clamp(16px, 2vw, 22px);
+  }
+
+  .card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 26px 24px 28px;
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    box-shadow: 0 1px 0 rgba(10, 37, 64, .04), 0 10px 24px -18px rgba(10, 37, 64, .5);
+    transition: border-color .2s ease, box-shadow .2s ease;
+  }
+
+  .card:hover {
+    border-color: #a8c6ee;
+    box-shadow: 0 1px 0 rgba(10, 37, 64, .05), 0 16px 30px -20px rgba(10, 37, 64, .55);
+  }
+
+  .card .num {
+    position: absolute;
+    top: 20px;
+    right: 22px;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: .12em;
+    color: #4a6b96;
+  }
+
+  .ico {
+    width: 58px;
+    height: 58px;
+    display: block;
+  }
+
+  .card h3 {
+    margin: 4px 0 0;
+    font-size: 21px;
+    letter-spacing: -.01em;
+    font-weight: 800;
+  }
+
+  .card .en {
+    margin: -8px 0 0;
+    font-size: 11px;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+    color: #5b7396;
+    font-weight: 700;
+  }
+
+  .card p {
+    margin: 0;
+    font-size: 15px;
+    color: var(--muted);
+  }
+
+  .card .trait {
+    margin-top: auto;
+    padding-top: 14px;
+    border-top: 1px dashed var(--line);
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--blue-deep);
+  }
+
+  /* ---------- 为什么 ---------- */
+  .why {
+    background: var(--blue-deep);
+    color: #fff;
+    margin-top: clamp(40px, 6vw, 72px);
+  }
+
+  .why-grid {
+    display: grid;
+    grid-template-columns: minmax(0, .82fr) minmax(0, 1.18fr);
+    gap: clamp(28px, 5vw, 60px);
+    padding-block: clamp(48px, 7vw, 84px);
+  }
+
+  .quote {
+    margin: 0;
+    font-size: clamp(28px, 4vw, 42px);
+    line-height: 1.32;
+    font-weight: 800;
+    letter-spacing: -.025em;
+    padding-left: 22px;
+    border-left: 4px solid var(--red);
+    text-wrap: balance;
+  }
+
+  .why h2 {
+    color: #fff;
+    max-width: none;
+  }
+
+  .why p {
+    margin: 18px 0 0;
+    color: #d9e6f8;
+    font-size: 16px;
+  }
+
+  .why .sign {
+    margin-top: 26px;
+    font-size: 14px;
+    color: #adc8ea;
+    letter-spacing: .04em;
+  }
+
+  /* ---------- 页脚 ---------- */
+  .foot {
+    border-top: 1px solid var(--line);
+  }
+
+  .foot-inner {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: clamp(24px, 5vw, 64px);
+    flex-wrap: wrap;
+    padding-block: clamp(36px, 5vw, 56px);
+  }
+
+  .foot-title {
+    margin: 0 0 10px;
+    font-size: 17px;
+    font-weight: 800;
+    letter-spacing: .06em;
+  }
+
+  .foot-note {
+    margin: 0 0 6px;
+    font-size: 13px;
+    color: var(--muted);
+    max-width: 46ch;
+  }
+
+  .pocket {
+    min-width: 240px;
+    max-width: 320px;
+  }
+
+  .pocket-btn {
+    font: inherit;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--blue-deep);
+    background: #fff;
+    border: 2px solid var(--blue-deep);
+    border-radius: 999px;
+    padding: 11px 22px;
+    cursor: pointer;
+    transition: background-color .18s ease, color .18s ease;
+  }
+
+  .pocket-btn:hover {
+    background: var(--blue-deep);
+    color: #fff;
+  }
+
+  .pocket-out {
+    margin: 14px 0 0;
+    font-size: 13px;
+    line-height: 1.65;
+    color: var(--muted);
+    min-height: 3em;
+  }
+
+  /* ---------- 进场动画 ---------- */
+  .js [data-reveal] {
+    opacity: 0;
+    transform: translateY(16px);
+    transition: opacity .6s ease, transform .6s ease;
+  }
+
+  .js [data-reveal].is-in {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* ---------- 响应式 ---------- */
+  @media (max-width: 860px) {
+    .hero { grid-template-columns: 1fr; }
+    .hero-art { order: -1; }
+    .hero-art svg { max-width: 250px; }
+    .eyebrow { margin-bottom: 14px; }
+    .why-grid { grid-template-columns: 1fr; }
+    .sec-head { flex-direction: column; gap: 10px; }
+    .foot-inner { flex-direction: column; }
+  }
+
+  @media (max-width: 520px) {
+    h1 { letter-spacing: -.05em; }
+    .card { padding: 22px 20px 24px; }
+  }
+
+  /* ---------- 尊重系统的减少动效设置 ---------- */
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    *,
+    *::before,
+    *::after {
+      animation: none !important;
+      transition: none !important;
+    }
+    .js [data-reveal] {
+      opacity: 1;
+      transform: none;
+    }
+  }
+</style>
+</head>
+<body id="top">
+
+<header class="site-head">
+  <div class="wrap head-inner">
+    <a class="brand" href="#top">
+      <span class="brand-face" aria-hidden="true"></span>
+      哆啦A梦
+    </a>
+    <nav aria-label="页面导航">
+      <a href="#tools">口袋里的道具</a>
+      <a href="#why">为什么是他</a>
+      <a href="#foot">页脚</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+  <!-- ============ 主视觉 ============ -->
+  <section class="hero wrap" aria-labelledby="hero-title">
+    <div data-reveal>
+      <p class="eyebrow"><span aria-hidden="true"></span>来自 22 世纪 · 猫型机器人</p>
+      <h1 id="hero-title">哆啦<span class="accent">A</span>梦</h1>
+      <p class="slogan">四次元口袋里，永远有一个<em>刚好能用</em>的东西。</p>
+      <p class="lede">
+        他是一台量产的育儿机器人，出厂时还掉了一颗螺丝。就是这么一个不太靠谱的家伙，
+        陪了好几代人长大，顺手把很多「来不及」改成了「还来得及」。
+      </p>
+      <a class="cta" href="#tools">看看口袋里有什么 <span class="arrow" aria-hidden="true">→</span></a>
+    </div>
+
+    <div class="hero-art">
+      <svg viewBox="0 0 420 420" role="img" aria-label="插画：蓝白配色的猫型机器人头部，白脸、红鼻子、红项圈与黄色铃铛">
+        <circle cx="210" cy="200" r="196" fill="#eaf3fd"/>
+        <circle cx="56" cy="72" r="7" fill="#c6dcf8"/>
+        <circle cx="70" cy="330" r="5" fill="#c6dcf8"/>
+        <circle cx="366" cy="96" r="6" fill="#c6dcf8"/>
+        <circle cx="352" cy="322" r="4" fill="#f4c7d3"/>
+
+        <!-- 头部 -->
+        <circle cx="210" cy="185" r="158" fill="#1a6dd6"/>
+        <circle cx="210" cy="185" r="158" fill="none" stroke="#0a2540" stroke-width="5"/>
+
+        <!-- 面部白色区域 -->
+        <ellipse cx="210" cy="236" rx="124" ry="104" fill="#ffffff" stroke="#0a2540" stroke-width="5"/>
+
+        <!-- 眼睛 -->
+        <ellipse cx="178" cy="150" rx="34" ry="42" fill="#ffffff" stroke="#0a2540" stroke-width="5"/>
+        <ellipse cx="242" cy="150" rx="34" ry="42" fill="#ffffff" stroke="#0a2540" stroke-width="5"/>
+        <circle cx="188" cy="164" r="9" fill="#0a2540"/>
+        <circle cx="232" cy="164" r="9" fill="#0a2540"/>
+
+        <!-- 鼻子与嘴 -->
+        <circle cx="210" cy="203" r="18" fill="#d8322c" stroke="#0a2540" stroke-width="4"/>
+        <circle cx="204" cy="197" r="5" fill="#ffffff" opacity=".55"/>
+        <path d="M210 221v26" stroke="#0a2540" stroke-width="4" stroke-linecap="round"/>
+        <path d="M172 254q38 50 76 0" fill="none" stroke="#0a2540" stroke-width="5" stroke-linecap="round"/>
+
+        <!-- 胡须 -->
+        <g stroke="#0a2540" stroke-width="4" stroke-linecap="round">
+          <path d="M118 196 62 182"/>
+          <path d="M114 220 62 220"/>
+          <path d="M118 244 68 257"/>
+          <path d="M302 196 358 182"/>
+          <path d="M306 220 358 220"/>
+          <path d="M302 244 352 257"/>
+        </g>
+
+        <!-- 项圈与铃铛 -->
+        <path d="M100 296q110 52 220 0v24q-110 54-220 0z" fill="#d8322c" stroke="#0a2540" stroke-width="4" stroke-linejoin="round"/>
+        <circle cx="210" cy="340" r="21" fill="#f2b53c" stroke="#0a2540" stroke-width="4.5"/>
+        <path d="M199 332h22" stroke="#0a2540" stroke-width="3.5" stroke-linecap="round"/>
+        <circle cx="210" cy="350" r="4" fill="#0a2540"/>
+      </svg>
+    </div>
+  </section>
+
+  <!-- ============ 道具 ============ -->
+  <section id="tools" class="section wrap" aria-labelledby="tools-title">
+    <div class="sec-head" data-reveal>
+      <p class="kicker">四次元口袋 / 4 件</p>
+      <h2 id="tools-title">四件道具，四种「当时要是有就好了」</h2>
+    </div>
+
+    <ul class="cards">
+      <li class="card" data-reveal>
+        <span class="num" aria-hidden="true">01</span>
+        <svg class="ico" viewBox="0 0 64 64" aria-hidden="true" focusable="false">
+          <path d="M14 56V21c0-7 8-12 18-12s18 5 18 12v35" fill="#f2a7bb" stroke="#0a2540" stroke-width="3.5" stroke-linejoin="round"/>
+          <path d="M21 56V23c0-5 5.4-8.6 11-8.6S43 18 43 23v33" fill="#fbe1e9" stroke="#0a2540" stroke-width="3" stroke-linejoin="round"/>
+          <circle cx="38" cy="39" r="2.6" fill="#0a2540"/>
+        </svg>
+        <h3>任意门</h3>
+        <p class="en">Anywhere Door</p>
+        <p>说一个地名，拉开门，走过去。没有安检，没有换乘，也没有人问你到底几点能到。</p>
+        <p class="trait">适合场景：迟到了，但不想解释</p>
+      </li>
+
+      <li class="card" data-reveal>
+        <span class="num" aria-hidden="true">02</span>
+        <svg class="ico" viewBox="0 0 64 64" aria-hidden="true" focusable="false">
+          <rect x="28" y="30" width="8" height="21" rx="4" fill="#f2b53c" stroke="#0a2540" stroke-width="3.5"/>
+          <ellipse cx="18" cy="22" rx="13" ry="4.6" transform="rotate(-12 18 22)" fill="#1a6dd6" stroke="#0a2540" stroke-width="3"/>
+          <ellipse cx="46" cy="22" rx="13" ry="4.6" transform="rotate(12 46 22)" fill="#1a6dd6" stroke="#0a2540" stroke-width="3"/>
+          <circle cx="32" cy="24" r="6.5" fill="#ffffff" stroke="#0a2540" stroke-width="3.5"/>
+        </svg>
+        <h3>竹蜻蜓</h3>
+        <p class="en">Bamboo Copter</p>
+        <p>戴在头上就能飞，速度看心情。最贴心的地方不是能飞，是你低头就看见整条街，忽然发现自家楼顶挺好看。</p>
+        <p class="trait">适合场景：想换个高度看今天</p>
+      </li>
+
+      <li class="card" data-reveal>
+        <span class="num" aria-hidden="true">03</span>
+        <svg class="ico" viewBox="0 0 64 64" aria-hidden="true" focusable="false">
+          <path d="M13 27c0-9 8.5-15 19-15s19 6 19 15v21c0 3.2-2 5-5 5H18c-3 0-5-1.8-5-5V27z" fill="#eac68f" stroke="#0a2540" stroke-width="3.5" stroke-linejoin="round"/>
+          <path d="M13 27c0-9 8.5-15 19-15s19 6 19 15" fill="none" stroke="#0a2540" stroke-width="3.5"/>
+          <path d="M21 32h22M21 40h15M21 48h20" stroke="#a97c40" stroke-width="3" stroke-linecap="round"/>
+        </svg>
+        <h3>记忆面包</h3>
+        <p class="en">Memory Bread</p>
+        <p>把课本印在面包上，一片一片吃下去。怀念的不是分数，是那种「原来背书也能这么香」的错觉。</p>
+        <p class="trait">适合场景：明天考试，今天才翻开</p>
+      </li>
+
+      <li class="card" data-reveal>
+        <span class="num" aria-hidden="true">04</span>
+        <svg class="ico" viewBox="0 0 64 64" aria-hidden="true" focusable="false">
+          <path d="M9 29c4.5-9 12.5-14 23-14" fill="none" stroke="#8fbcf0" stroke-width="3" stroke-linecap="round" stroke-dasharray="4 5"/>
+          <ellipse cx="32" cy="46" rx="23" ry="9" fill="#1a6dd6" stroke="#0a2540" stroke-width="3.5"/>
+          <ellipse cx="32" cy="43" rx="14" ry="5" fill="#dceafd" stroke="#0a2540" stroke-width="2.5"/>
+          <path d="M32 43V21" stroke="#0a2540" stroke-width="3.5" stroke-linecap="round"/>
+          <circle cx="32" cy="15" r="6" fill="#d8322c" stroke="#0a2540" stroke-width="3"/>
+        </svg>
+        <h3>时光机</h3>
+        <p class="en">Time Machine</p>
+        <p>坐上去就能回到某个下午。大部分时候我们想回去不是为了改什么，只是想再看一眼那时候的自己。</p>
+        <p class="trait">适合场景：突然很想念某一年</p>
+      </li>
+    </ul>
+  </section>
+
+  <!-- ============ 为什么 ============ -->
+  <section id="why" class="why" aria-labelledby="why-title">
+    <div class="wrap why-grid">
+      <blockquote class="quote" data-reveal>他的道具从不解决人生，只解决今天。</blockquote>
+      <div data-reveal>
+        <h2 id="why-title">为什么是哆啦A梦</h2>
+        <p>
+          大雄永远是那个考零分、被胖虎追着跑、又被妈妈骂的大雄。哆啦A梦也没有把小抄变成满分，
+          他只是每次都在旁边坐着，等大雄哭完，然后掏出一件东西说：那试试这个吧。
+        </p>
+        <p>
+          所以真正被记住的从来不是道具，是那种「有人愿意陪你试一次」的感觉。
+          长大以后你才会发现，四次元口袋最珍贵的地方，是它永远在同一个位置，随时可以打开。
+        </p>
+        <p class="sign">——至于那扇门后面是什么，得你自己推开。</p>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer id="foot" class="foot">
+  <div class="wrap foot-inner">
+    <div>
+      <p class="foot-title">哆啦A梦</p>
+      <p class="foot-note">粉丝自制的致敬页面，角色与作品版权归原作者及出版方所有。</p>
+      <p class="foot-note">单文件、零外部请求，断网也能正常打开。</p>
+    </div>
+    <div class="pocket">
+      <button class="pocket-btn" id="pocketBtn" type="button">摇一摇口袋</button>
+      <p class="pocket-out" id="pocketOut" role="status" aria-live="polite">口袋里有点回声，摇一下试试。</p>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function () {
+  var doc = document;
+
+  /* 1. 滚动进场：不支持或用户要求减少动效时，直接全部显示 */
+  var reduce = window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)') : null;
+  var items = Array.prototype.slice.call(doc.querySelectorAll('[data-reveal]'));
+
+  function showAll() {
+    items.forEach(function (el) { el.classList.add('is-in'); });
+  }
+
+  if (!reduce || reduce.matches || !('IntersectionObserver' in window)) {
+    showAll();
+  } else {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('is-in');
+          io.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.12, rootMargin: '0px 0px -8% 0px' });
+
+    items.forEach(function (el) { io.observe(el); });
+
+    if (typeof reduce.addEventListener === 'function') {
+      reduce.addEventListener('change', function (event) {
+        if (event.matches) { showAll(); io.disconnect(); }
+      });
+    }
+  }
+
+  /* 2. 页脚的小彩蛋：随机吐出一条口袋冷知识 */
+  var facts = [
+    '口袋的入口连着四次元空间，理论上装得下整个世界。大雄曾经在里面找过一只袜子，没找到。',
+    '他是量产型的育儿机器人，出厂时掉了一颗螺丝，所以情绪比说明书上写的多一点。',
+    '身高 129.3 厘米，体重 129.3 公斤。数字挺整，跑步速度就先不说了。',
+    '他怕老鼠。一台机器怕老鼠，这件事本身就挺人类的。',
+    '大部分道具都有使用期限，效果过了就失效。这一点相当公平。',
+    '口袋里的东西看着乱，其实他总能第一时间摸出你需要的那件——这才是最不像机器的地方。'
+  ];
+
+  var btn = doc.getElementById('pocketBtn');
+  var out = doc.getElementById('pocketOut');
+  var last = -1;
+
+  if (btn && out) {
+    btn.addEventListener('click', function () {
+      var i = Math.floor(Math.random() * facts.length);
+      if (facts.length > 1 && i === last) { i = (i + 1) % facts.length; }
+      last = i;
+      out.textContent = facts[i];
+    });
+  }
+})();
+</script>
+
+</body>
+</html>
