@@ -14,13 +14,14 @@
     --blue-ink: #0a2540;
     --blue-pale: #dceafd;
     --red: #d8322c;
-    --red-soft: #f2a7bb;
     --bell: #f2b53c;
     --paper: #fbfcfe;
     --line: #d7e3f4;
     --muted: #43597a;
+    --muted-2: #4a6b96;
     --radius: 20px;
     --wrap: 1100px;
+    --measure: 70ch;
     --font: ui-sans-serif, system-ui, -apple-system, "PingFang SC", "Hiragino Sans GB",
             "Microsoft YaHei", "Source Han Sans SC", "Noto Sans CJK SC", sans-serif;
   }
@@ -46,6 +47,9 @@
     line-height: 1.7;
     font-size: 16px;
     letter-spacing: .01em;
+    font-kerning: normal;
+    text-rendering: optimizeLegibility;
+    overflow-wrap: break-word;
   }
 
   .wrap {
@@ -57,11 +61,25 @@
 
   a { color: var(--blue-deep); }
 
+  /* 正文行宽上限，段落一律不超过 70ch */
+  p {
+    max-width: var(--measure);
+    text-wrap: pretty;
+  }
+
+  /* 中英文混排：内联西文单独给一点左右气口，避免与汉字粘连 */
+  .lat {
+    margin-inline: .12em;
+    letter-spacing: .01em;
+  }
+
+  [id] { scroll-margin-top: 88px; }
+
   /* ---------- 焦点可见 ---------- */
   :focus-visible {
     outline: 3px solid var(--red);
     outline-offset: 3px;
-    border-radius: 4px;
+    border-radius: 6px;
   }
 
   /* ---------- 顶部 ---------- */
@@ -77,7 +95,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 16px;
+    gap: 12px;
     min-height: 64px;
     flex-wrap: wrap;
   }
@@ -86,6 +104,7 @@
     display: inline-flex;
     align-items: center;
     gap: 10px;
+    min-height: 44px;
     font-weight: 800;
     font-size: 17px;
     letter-spacing: .06em;
@@ -129,14 +148,17 @@
 
   .site-head nav {
     display: flex;
-    gap: clamp(14px, 3vw, 28px);
+    gap: clamp(8px, 2.4vw, 22px);
     font-size: 15px;
   }
 
   .site-head nav a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding-inline: 6px;
     text-decoration: none;
     color: var(--muted);
-    padding-bottom: 2px;
     border-bottom: 2px solid transparent;
   }
 
@@ -145,22 +167,25 @@
     border-bottom-color: var(--blue-pale);
   }
 
-  /* ---------- 主视觉 ---------- */
+  /* ---------- 首屏 ---------- */
   .hero {
     display: grid;
-    grid-template-columns: minmax(0, 1.08fr) minmax(0, .92fr);
+    grid-template-columns: minmax(0, 1.06fr) minmax(0, .94fr);
     align-items: center;
-    gap: clamp(24px, 5vw, 56px);
-    padding-block: clamp(48px, 8vw, 96px) clamp(40px, 6vw, 80px);
+    gap: clamp(20px, 4vw, 56px);
+    min-height: min(84vh, 720px);
+    padding-block: clamp(56px, 9vw, 118px) clamp(52px, 8vw, 104px);
   }
 
+  .hero-copy { min-width: 0; }
+
   .eyebrow {
-    margin: 0 0 18px;
-    font-size: 13px;
+    margin: 0 0 clamp(18px, 3vw, 30px);
+    font-size: 12.5px;
     font-weight: 700;
     letter-spacing: .22em;
     text-transform: uppercase;
-    color: var(--blue-deep);
+    color: var(--muted-2);
   }
 
   .eyebrow span {
@@ -174,36 +199,71 @@
 
   h1 {
     margin: 0;
-    font-size: clamp(56px, 11vw, 104px);
-    line-height: .96;
-    letter-spacing: -.045em;
+    font-size: clamp(64px, 12.5vw, 132px);
+    line-height: .92;
+    letter-spacing: -.05em;
     font-weight: 900;
     color: var(--blue-ink);
   }
 
-  h1 .accent {
-    color: var(--blue);
-  }
+  h1 .accent { color: var(--blue); }
 
+  /* slogan 与标题刻意拉开量级：132px 对 21px */
   .slogan {
-    margin: 22px 0 0;
-    max-width: 30ch;
-    font-size: clamp(20px, 2.5vw, 27px);
-    line-height: 1.5;
-    font-weight: 700;
+    margin: clamp(24px, 3.4vw, 36px) 0 0;
+    max-width: 21em;
+    font-size: clamp(17px, 1.65vw, 21px);
+    line-height: 1.65;
+    font-weight: 600;
+    letter-spacing: .02em;
     color: var(--blue-deep);
-    text-wrap: balance;
+    text-wrap: pretty;
   }
 
   .slogan em {
     font-style: normal;
-    box-shadow: inset 0 -.42em 0 var(--blue-pale);
+    box-shadow: inset 0 -.34em 0 var(--blue-pale);
+  }
+
+  .hero-art {
+    display: flex;
+    justify-content: center;
+    min-width: 0;
+  }
+
+  .hero-art svg {
+    display: block;
+    width: 100%;
+    max-width: 400px;
+    height: auto;
+    animation: bob 7s ease-in-out infinite;
+  }
+
+  @keyframes bob {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-9px); }
+  }
+
+  /* ---------- 首屏之后：引言 ---------- */
+  .intro {
+    padding-block: 0 clamp(48px, 7vw, 84px);
+  }
+
+  .intro-inner {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: clamp(24px, 4vw, 48px);
+    border-top: 1px solid var(--line);
+    padding-top: clamp(28px, 4vw, 44px);
   }
 
   .lede {
-    margin: 20px 0 0;
-    max-width: 38ch;
-    font-size: 16px;
+    margin: 0;
+    max-width: 56ch;
+    font-size: clamp(16px, 1.5vw, 18px);
+    line-height: 1.75;
     color: var(--muted);
   }
 
@@ -211,8 +271,8 @@
     display: inline-flex;
     align-items: center;
     gap: 10px;
-    margin-top: 32px;
-    padding: 14px 26px;
+    min-height: 48px;
+    padding: 12px 26px;
     border-radius: 999px;
     border: 2px solid var(--blue-deep);
     background: var(--blue-deep);
@@ -235,23 +295,6 @@
 
   .cta:hover .arrow { transform: translateX(4px); }
 
-  .hero-art {
-    display: flex;
-    justify-content: center;
-  }
-
-  .hero-art svg {
-    width: 100%;
-    max-width: 420px;
-    height: auto;
-    animation: bob 7s ease-in-out infinite;
-  }
-
-  @keyframes bob {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-9px); }
-  }
-
   /* ---------- 区块通用 ---------- */
   .section {
     padding-block: clamp(40px, 6vw, 72px);
@@ -265,7 +308,7 @@
     flex-wrap: wrap;
     border-top: 2px solid var(--blue-ink);
     padding-top: 22px;
-    margin-bottom: 34px;
+    margin-bottom: clamp(28px, 4vw, 40px);
   }
 
   .kicker {
@@ -286,7 +329,7 @@
     text-wrap: balance;
   }
 
-  /* ---------- 道具卡片 ---------- */
+  /* ---------- 道具：可展开卡片 ---------- */
   .cards {
     list-style: none;
     margin: 0;
@@ -294,14 +337,13 @@
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(238px, 1fr));
     gap: clamp(16px, 2vw, 22px);
+    align-items: start;
   }
 
   .card {
     position: relative;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    padding: 26px 24px 28px;
+    min-width: 0;
+    padding: 22px 22px 20px;
     background: #fff;
     border: 1px solid var(--line);
     border-radius: var(--radius);
@@ -309,53 +351,137 @@
     transition: border-color .2s ease, box-shadow .2s ease;
   }
 
-  .card:hover {
+  .card:hover,
+  .card[data-open="true"] {
     border-color: #a8c6ee;
     box-shadow: 0 1px 0 rgba(10, 37, 64, .05), 0 16px 30px -20px rgba(10, 37, 64, .55);
   }
 
-  .card .num {
+  .card-num {
     position: absolute;
-    top: 20px;
-    right: 22px;
+    top: 22px;
+    right: 20px;
     font-size: 12px;
     font-weight: 800;
     letter-spacing: .12em;
-    color: #4a6b96;
+    color: var(--muted-2);
   }
 
   .ico {
-    width: 58px;
-    height: 58px;
+    width: 54px;
+    height: 54px;
     display: block;
   }
 
-  .card h3 {
-    margin: 4px 0 0;
+  .card-h {
+    margin: 10px 0 0;
     font-size: 21px;
     letter-spacing: -.01em;
     font-weight: 800;
   }
 
-  .card .en {
-    margin: -8px 0 0;
-    font-size: 11px;
-    letter-spacing: .16em;
-    text-transform: uppercase;
-    color: #5b7396;
-    font-weight: 700;
+  /* 整块标题都是一个 44px 以上的点击区 */
+  .card-btn {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    flex-wrap: wrap;
+    width: 100%;
+    min-height: 44px;
+    margin: 0;
+    padding: 8px 0 6px;
+    font: inherit;
+    font-size: 21px;
+    font-weight: 800;
+    letter-spacing: -.01em;
+    color: var(--blue-ink);
+    text-align: left;
+    background: none;
+    border: 0;
+    cursor: pointer;
   }
 
-  .card p {
-    margin: 0;
+  .card-en {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+    color: var(--muted-2);
+  }
+
+  .card-sign {
+    position: relative;
+    width: 20px;
+    height: 20px;
+    margin-left: auto;
+    align-self: center;
+    flex: none;
+    border-radius: 50%;
+    border: 2px solid var(--blue-deep);
+    transition: transform .22s ease, background-color .22s ease;
+  }
+
+  .card-sign::before,
+  .card-sign::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    background: var(--blue-deep);
+    transition: opacity .22s ease;
+  }
+
+  .card-sign::before {
+    width: 9px;
+    height: 2px;
+    transform: translate(-50%, -50%);
+  }
+
+  .card-sign::after {
+    width: 2px;
+    height: 9px;
+    transform: translate(-50%, -50%);
+  }
+
+  .card[data-open="true"] .card-sign { transform: rotate(90deg); }
+  .card[data-open="true"] .card-sign::after { opacity: 0; }
+
+  .card-teaser {
+    margin: 10px 0 0;
     font-size: 15px;
+    line-height: 1.7;
     color: var(--muted);
   }
 
-  .card .trait {
-    margin-top: auto;
-    padding-top: 14px;
+  /* 展开面板：0fr → 1fr 的高度过渡 */
+  .card-panel {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows .3s ease;
+  }
+
+  .card[data-open="true"] .card-panel { grid-template-rows: 1fr; }
+
+  .card-panel > div {
+    overflow: hidden;
+    min-height: 0;
+  }
+
+  .card-panel p {
+    margin: 0;
+    font-size: 15px;
+    line-height: 1.7;
+    color: var(--muted);
+  }
+
+  .card-panel p:first-child {
+    padding-top: 12px;
     border-top: 1px dashed var(--line);
+    margin-top: 12px;
+  }
+
+  .card-panel .trait {
+    padding-bottom: 4px;
     font-size: 13px;
     font-weight: 700;
     color: var(--blue-deep);
@@ -365,7 +491,7 @@
   .why {
     background: var(--blue-deep);
     color: #fff;
-    margin-top: clamp(40px, 6vw, 72px);
+    margin-top: clamp(36px, 5vw, 64px);
   }
 
   .why-grid {
@@ -377,6 +503,7 @@
 
   .quote {
     margin: 0;
+    max-width: var(--measure);
     font-size: clamp(28px, 4vw, 42px);
     line-height: 1.32;
     font-weight: 800;
@@ -388,13 +515,14 @@
 
   .why h2 {
     color: #fff;
-    max-width: none;
+    max-width: 24ch;
   }
 
   .why p {
     margin: 18px 0 0;
     color: #d9e6f8;
     font-size: 16px;
+    line-height: 1.75;
   }
 
   .why .sign {
@@ -413,10 +541,12 @@
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    gap: clamp(24px, 5vw, 64px);
+    gap: clamp(28px, 5vw, 64px);
     flex-wrap: wrap;
     padding-block: clamp(36px, 5vw, 56px);
   }
+
+  .foot-left { flex: 1 1 260px; min-width: 0; }
 
   .foot-title {
     margin: 0 0 10px;
@@ -428,16 +558,24 @@
   .foot-note {
     margin: 0 0 6px;
     font-size: 13px;
+    line-height: 1.7;
     color: var(--muted);
     max-width: 46ch;
   }
 
+  /* ---------- 彩蛋：四次元口袋 ---------- */
   .pocket {
-    min-width: 240px;
-    max-width: 320px;
+    flex: 0 1 320px;
+    min-width: 0;
+    max-width: 100%;
   }
 
   .pocket-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 46px;
+    padding: 11px 22px;
     font: inherit;
     font-size: 14px;
     font-weight: 700;
@@ -445,7 +583,6 @@
     background: #fff;
     border: 2px solid var(--blue-deep);
     border-radius: 999px;
-    padding: 11px 22px;
     cursor: pointer;
     transition: background-color .18s ease, color .18s ease;
   }
@@ -455,12 +592,85 @@
     color: #fff;
   }
 
+  .pocket-stage {
+    position: relative;
+    height: 196px;
+    margin-top: 16px;
+  }
+
+  .pocket-body {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 84px;
+    background: #fff;
+    border: 2px solid var(--blue-deep);
+    border-radius: 16px 16px 46px 46px / 14px 14px 30px 30px;
+    box-shadow: inset 0 -10px 20px -14px rgba(10, 37, 64, .45);
+  }
+
+  .pocket-mouth {
+    position: absolute;
+    left: 7%;
+    right: 7%;
+    bottom: 74px;
+    height: 26px;
+    border-radius: 50%;
+    background: var(--blue-deep);
+    box-shadow: inset 0 7px 14px rgba(0, 0, 0, .45);
+  }
+
+  .pocket-items {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    position: absolute;
+    inset: 0;
+  }
+
+  .pocket-item {
+    position: absolute;
+    bottom: 78px;
+    width: 48px;
+    height: 48px;
+    opacity: 0;
+    transform: translateY(14px) scale(.7);
+    transform-origin: 50% 100%;
+  }
+
+  .pocket-item:nth-child(1) { left: 8%; }
+  .pocket-item:nth-child(2) { left: 30%; }
+  .pocket-item:nth-child(3) { left: 52%; }
+  .pocket-item:nth-child(4) { left: 74%; }
+
+  .pocket-item svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  .pocket-stage[data-open="true"] .pocket-item {
+    animation: pop-out .56s cubic-bezier(.22, .9, .3, 1.15) forwards;
+  }
+
+  .pocket-stage[data-open="true"] .pocket-item:nth-child(1) { animation-delay: 0s; }
+  .pocket-stage[data-open="true"] .pocket-item:nth-child(2) { animation-delay: .06s; }
+  .pocket-stage[data-open="true"] .pocket-item:nth-child(3) { animation-delay: .12s; }
+  .pocket-stage[data-open="true"] .pocket-item:nth-child(4) { animation-delay: .18s; }
+
+  @keyframes pop-out {
+    0%   { opacity: 0; transform: translateY(14px) scale(.7); }
+    55%  { opacity: 1; transform: translateY(-64px) scale(1.06); }
+    100% { opacity: 1; transform: translateY(-56px) scale(1); }
+  }
+
   .pocket-out {
-    margin: 14px 0 0;
+    margin: 12px 0 0;
     font-size: 13px;
-    line-height: 1.65;
+    line-height: 1.7;
     color: var(--muted);
-    min-height: 3em;
+    min-height: 4.6em;
   }
 
   /* ---------- 进场动画 ---------- */
@@ -477,18 +687,23 @@
 
   /* ---------- 响应式 ---------- */
   @media (max-width: 860px) {
-    .hero { grid-template-columns: 1fr; }
+    .hero {
+      grid-template-columns: 1fr;
+      min-height: 0;
+      padding-block: clamp(32px, 7vw, 56px) clamp(40px, 7vw, 64px);
+    }
     .hero-art { order: -1; }
-    .hero-art svg { max-width: 250px; }
-    .eyebrow { margin-bottom: 14px; }
+    .hero-art svg { max-width: 210px; }
     .why-grid { grid-template-columns: 1fr; }
     .sec-head { flex-direction: column; gap: 10px; }
     .foot-inner { flex-direction: column; }
+    .pocket { flex: 1 1 auto; width: 100%; }
   }
 
   @media (max-width: 520px) {
-    h1 { letter-spacing: -.05em; }
-    .card { padding: 22px 20px 24px; }
+    h1 { letter-spacing: -.055em; }
+    .card { padding: 20px 18px 18px; }
+    .intro-inner { align-items: flex-start; }
   }
 
   /* ---------- 尊重系统的减少动效设置 ---------- */
@@ -503,6 +718,12 @@
     .js [data-reveal] {
       opacity: 1;
       transform: none;
+    }
+    /* 彩蛋动画完全关闭：直接呈现终态，不做任何位移与缩放 */
+    .pocket-stage[data-open="true"] .pocket-item {
+      animation: none !important;
+      opacity: 1;
+      transform: translateY(-56px) scale(1);
     }
   }
 </style>
@@ -525,17 +746,12 @@
 
 <main>
 
-  <!-- ============ 主视觉 ============ -->
+  <!-- ============ 首屏：只放标题 + slogan ============ -->
   <section class="hero wrap" aria-labelledby="hero-title">
-    <div data-reveal>
+    <div class="hero-copy">
       <p class="eyebrow"><span aria-hidden="true"></span>来自 22 世纪 · 猫型机器人</p>
       <h1 id="hero-title">哆啦<span class="accent">A</span>梦</h1>
       <p class="slogan">四次元口袋里，永远有一个<em>刚好能用</em>的东西。</p>
-      <p class="lede">
-        他是一台量产的育儿机器人，出厂时还掉了一颗螺丝。就是这么一个不太靠谱的家伙，
-        陪了好几代人长大，顺手把很多「来不及」改成了「还来得及」。
-      </p>
-      <a class="cta" href="#tools">看看口袋里有什么 <span class="arrow" aria-hidden="true">→</span></a>
     </div>
 
     <div class="hero-art">
@@ -584,7 +800,18 @@
     </div>
   </section>
 
-  <!-- ============ 道具 ============ -->
+  <!-- ============ 首屏之下：引言 ============ -->
+  <section class="intro wrap" aria-label="简介">
+    <div class="intro-inner" data-reveal>
+      <p class="lede">
+        他是一台量产的育儿机器人，出厂时还掉了一颗螺丝。就是这么一个不太靠谱的家伙，
+        陪了好几代人长大，顺手把很多「来不及」改成了「还来得及」。
+      </p>
+      <a class="cta" href="#tools">看看口袋里有什么 <span class="arrow" aria-hidden="true">→</span></a>
+    </div>
+  </section>
+
+  <!-- ============ 道具：可展开卡片 ============ -->
   <section id="tools" class="section wrap" aria-labelledby="tools-title">
     <div class="sec-head" data-reveal>
       <p class="kicker">四次元口袋 / 4 件</p>
@@ -592,48 +819,78 @@
     </div>
 
     <ul class="cards">
-      <li class="card" data-reveal>
-        <span class="num" aria-hidden="true">01</span>
+      <li class="card" data-tool data-open="false" data-reveal>
+        <span class="card-num" aria-hidden="true">01</span>
         <svg class="ico" viewBox="0 0 64 64" aria-hidden="true" focusable="false">
           <path d="M14 56V21c0-7 8-12 18-12s18 5 18 12v35" fill="#f2a7bb" stroke="#0a2540" stroke-width="3.5" stroke-linejoin="round"/>
           <path d="M21 56V23c0-5 5.4-8.6 11-8.6S43 18 43 23v33" fill="#fbe1e9" stroke="#0a2540" stroke-width="3" stroke-linejoin="round"/>
           <circle cx="38" cy="39" r="2.6" fill="#0a2540"/>
         </svg>
-        <h3>任意门</h3>
-        <p class="en">Anywhere Door</p>
-        <p>说一个地名，拉开门，走过去。没有安检，没有换乘，也没有人问你到底几点能到。</p>
-        <p class="trait">适合场景：迟到了，但不想解释</p>
+        <h3 class="card-h">
+          <button class="card-btn" type="button" aria-expanded="false" aria-controls="tool-panel-1" id="tool-btn-1">
+            <span class="card-name">任意门</span>
+            <span class="card-en"><span class="lat" lang="en">Anywhere Door</span></span>
+            <span class="card-sign" aria-hidden="true"></span>
+          </button>
+        </h3>
+        <p class="card-teaser">拉开门，走过去就到了。</p>
+        <div class="card-panel" id="tool-panel-1" role="region" aria-labelledby="tool-btn-1">
+          <div>
+            <p>说一个地名，拉开门，走过去。没有安检，没有换乘，也没有人问你到底几点能到。</p>
+            <p class="trait">适合场景：迟到了，但不想解释</p>
+          </div>
+        </div>
       </li>
 
-      <li class="card" data-reveal>
-        <span class="num" aria-hidden="true">02</span>
+      <li class="card" data-tool data-open="false" data-reveal>
+        <span class="card-num" aria-hidden="true">02</span>
         <svg class="ico" viewBox="0 0 64 64" aria-hidden="true" focusable="false">
           <rect x="28" y="30" width="8" height="21" rx="4" fill="#f2b53c" stroke="#0a2540" stroke-width="3.5"/>
           <ellipse cx="18" cy="22" rx="13" ry="4.6" transform="rotate(-12 18 22)" fill="#1a6dd6" stroke="#0a2540" stroke-width="3"/>
           <ellipse cx="46" cy="22" rx="13" ry="4.6" transform="rotate(12 46 22)" fill="#1a6dd6" stroke="#0a2540" stroke-width="3"/>
           <circle cx="32" cy="24" r="6.5" fill="#ffffff" stroke="#0a2540" stroke-width="3.5"/>
         </svg>
-        <h3>竹蜻蜓</h3>
-        <p class="en">Bamboo Copter</p>
-        <p>戴在头上就能飞，速度看心情。最贴心的地方不是能飞，是你低头就看见整条街，忽然发现自家楼顶挺好看。</p>
-        <p class="trait">适合场景：想换个高度看今天</p>
+        <h3 class="card-h">
+          <button class="card-btn" type="button" aria-expanded="false" aria-controls="tool-panel-2" id="tool-btn-2">
+            <span class="card-name">竹蜻蜓</span>
+            <span class="card-en"><span class="lat" lang="en">Bamboo Copter</span></span>
+            <span class="card-sign" aria-hidden="true"></span>
+          </button>
+        </h3>
+        <p class="card-teaser">戴上就能飞，速度看心情。</p>
+        <div class="card-panel" id="tool-panel-2" role="region" aria-labelledby="tool-btn-2">
+          <div>
+            <p>戴在头上就能飞，速度看心情。最贴心的地方不是能飞，是你低头就看见整条街，忽然发现自家楼顶挺好看。</p>
+            <p class="trait">适合场景：想换个高度看今天</p>
+          </div>
+        </div>
       </li>
 
-      <li class="card" data-reveal>
-        <span class="num" aria-hidden="true">03</span>
+      <li class="card" data-tool data-open="false" data-reveal>
+        <span class="card-num" aria-hidden="true">03</span>
         <svg class="ico" viewBox="0 0 64 64" aria-hidden="true" focusable="false">
           <path d="M13 27c0-9 8.5-15 19-15s19 6 19 15v21c0 3.2-2 5-5 5H18c-3 0-5-1.8-5-5V27z" fill="#eac68f" stroke="#0a2540" stroke-width="3.5" stroke-linejoin="round"/>
           <path d="M13 27c0-9 8.5-15 19-15s19 6 19 15" fill="none" stroke="#0a2540" stroke-width="3.5"/>
           <path d="M21 32h22M21 40h15M21 48h20" stroke="#a97c40" stroke-width="3" stroke-linecap="round"/>
         </svg>
-        <h3>记忆面包</h3>
-        <p class="en">Memory Bread</p>
-        <p>把课本印在面包上，一片一片吃下去。怀念的不是分数，是那种「原来背书也能这么香」的错觉。</p>
-        <p class="trait">适合场景：明天考试，今天才翻开</p>
+        <h3 class="card-h">
+          <button class="card-btn" type="button" aria-expanded="false" aria-controls="tool-panel-3" id="tool-btn-3">
+            <span class="card-name">记忆面包</span>
+            <span class="card-en"><span class="lat" lang="en">Memory Bread</span></span>
+            <span class="card-sign" aria-hidden="true"></span>
+          </button>
+        </h3>
+        <p class="card-teaser">把课本印在面包上，吃掉。</p>
+        <div class="card-panel" id="tool-panel-3" role="region" aria-labelledby="tool-btn-3">
+          <div>
+            <p>把课本印在面包上，一片一片吃下去。怀念的不是分数，是那种「原来背书也能这么香」的错觉。</p>
+            <p class="trait">适合场景：明天考试，今天才翻开</p>
+          </div>
+        </div>
       </li>
 
-      <li class="card" data-reveal>
-        <span class="num" aria-hidden="true">04</span>
+      <li class="card" data-tool data-open="false" data-reveal>
+        <span class="card-num" aria-hidden="true">04</span>
         <svg class="ico" viewBox="0 0 64 64" aria-hidden="true" focusable="false">
           <path d="M9 29c4.5-9 12.5-14 23-14" fill="none" stroke="#8fbcf0" stroke-width="3" stroke-linecap="round" stroke-dasharray="4 5"/>
           <ellipse cx="32" cy="46" rx="23" ry="9" fill="#1a6dd6" stroke="#0a2540" stroke-width="3.5"/>
@@ -641,10 +898,20 @@
           <path d="M32 43V21" stroke="#0a2540" stroke-width="3.5" stroke-linecap="round"/>
           <circle cx="32" cy="15" r="6" fill="#d8322c" stroke="#0a2540" stroke-width="3"/>
         </svg>
-        <h3>时光机</h3>
-        <p class="en">Time Machine</p>
-        <p>坐上去就能回到某个下午。大部分时候我们想回去不是为了改什么，只是想再看一眼那时候的自己。</p>
-        <p class="trait">适合场景：突然很想念某一年</p>
+        <h3 class="card-h">
+          <button class="card-btn" type="button" aria-expanded="false" aria-controls="tool-panel-4" id="tool-btn-4">
+            <span class="card-name">时光机</span>
+            <span class="card-en"><span class="lat" lang="en">Time Machine</span></span>
+            <span class="card-sign" aria-hidden="true"></span>
+          </button>
+        </h3>
+        <p class="card-teaser">坐上去，回到某个下午。</p>
+        <div class="card-panel" id="tool-panel-4" role="region" aria-labelledby="tool-btn-4">
+          <div>
+            <p>坐上去就能回到某个下午。大部分时候我们想回去不是为了改什么，只是想再看一眼那时候的自己。</p>
+            <p class="trait">适合场景：突然很想念某一年</p>
+          </div>
+        </div>
       </li>
     </ul>
   </section>
@@ -672,14 +939,56 @@
 
 <footer id="foot" class="foot">
   <div class="wrap foot-inner">
-    <div>
+    <div class="foot-left">
       <p class="foot-title">哆啦A梦</p>
       <p class="foot-note">粉丝自制的致敬页面，角色与作品版权归原作者及出版方所有。</p>
       <p class="foot-note">单文件、零外部请求，断网也能正常打开。</p>
     </div>
+
     <div class="pocket">
-      <button class="pocket-btn" id="pocketBtn" type="button">摇一摇口袋</button>
-      <p class="pocket-out" id="pocketOut" role="status" aria-live="polite">口袋里有点回声，摇一下试试。</p>
+      <button class="pocket-btn" id="pocketBtn" type="button" aria-expanded="false" aria-controls="pocketStage">
+        <span class="pocket-label">打开四次元口袋</span>
+      </button>
+
+      <div class="pocket-stage" id="pocketStage" data-open="false">
+        <ul class="pocket-items" aria-hidden="true">
+          <li class="pocket-item">
+            <svg viewBox="0 0 44 44" focusable="false">
+              <path d="M11 39V15c0-4.6 5-8 11-8s11 3.4 11 8v24" fill="#f2a7bb" stroke="#0a2540" stroke-width="2.6" stroke-linejoin="round"/>
+              <path d="M16 39V16c0-3.2 3.2-5.6 6-5.6s6 2.4 6 5.6v23" fill="#fbe1e9" stroke="#0a2540" stroke-width="2.2"/>
+              <circle cx="26" cy="27" r="1.8" fill="#0a2540"/>
+            </svg>
+          </li>
+          <li class="pocket-item">
+            <svg viewBox="0 0 44 44" focusable="false">
+              <rect x="19" y="20" width="6" height="15" rx="3" fill="#f2b53c" stroke="#0a2540" stroke-width="2.6"/>
+              <ellipse cx="12" cy="15" rx="9" ry="3.4" fill="#1a6dd6" stroke="#0a2540" stroke-width="2.2"/>
+              <ellipse cx="32" cy="15" rx="9" ry="3.4" fill="#1a6dd6" stroke="#0a2540" stroke-width="2.2"/>
+              <circle cx="22" cy="16" r="4.6" fill="#fff" stroke="#0a2540" stroke-width="2.6"/>
+            </svg>
+          </li>
+          <li class="pocket-item">
+            <svg viewBox="0 0 44 44" focusable="false">
+              <circle cx="22" cy="25" r="12" fill="#f2b53c" stroke="#0a2540" stroke-width="2.6"/>
+              <path d="M15 17h14" stroke="#0a2540" stroke-width="2.4" stroke-linecap="round"/>
+              <circle cx="22" cy="28" r="2.4" fill="#0a2540"/>
+              <path d="M22 13V9" stroke="#0a2540" stroke-width="2.6" stroke-linecap="round"/>
+            </svg>
+          </li>
+          <li class="pocket-item">
+            <svg viewBox="0 0 44 44" focusable="false">
+              <ellipse cx="22" cy="31" rx="15" ry="6" fill="#1a6dd6" stroke="#0a2540" stroke-width="2.6"/>
+              <ellipse cx="22" cy="29" rx="9" ry="3.4" fill="#dceafd" stroke="#0a2540" stroke-width="2"/>
+              <path d="M22 29V16" stroke="#0a2540" stroke-width="2.6" stroke-linecap="round"/>
+              <circle cx="22" cy="12" r="4" fill="#d8322c" stroke="#0a2540" stroke-width="2.2"/>
+            </svg>
+          </li>
+        </ul>
+        <div class="pocket-body" aria-hidden="true"></div>
+        <div class="pocket-mouth" aria-hidden="true"></div>
+      </div>
+
+      <p class="pocket-out" id="pocketOut" role="status" aria-live="polite">口袋里有点回声，按一下试试。</p>
     </div>
   </div>
 </footer>
@@ -687,16 +996,16 @@
 <script>
 (function () {
   var doc = document;
+  var reduceMQ = window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)') : null;
 
   /* 1. 滚动进场：不支持或用户要求减少动效时，直接全部显示 */
-  var reduce = window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)') : null;
   var items = Array.prototype.slice.call(doc.querySelectorAll('[data-reveal]'));
 
   function showAll() {
     items.forEach(function (el) { el.classList.add('is-in'); });
   }
 
-  if (!reduce || reduce.matches || !('IntersectionObserver' in window)) {
+  if (!reduceMQ || reduceMQ.matches || !('IntersectionObserver' in window)) {
     showAll();
   } else {
     var io = new IntersectionObserver(function (entries) {
@@ -710,14 +1019,52 @@
 
     items.forEach(function (el) { io.observe(el); });
 
-    if (typeof reduce.addEventListener === 'function') {
-      reduce.addEventListener('change', function (event) {
+    if (typeof reduceMQ.addEventListener === 'function') {
+      reduceMQ.addEventListener('change', function (event) {
         if (event.matches) { showAll(); io.disconnect(); }
       });
     }
   }
 
-  /* 2. 页脚的小彩蛋：随机吐出一条口袋冷知识 */
+  /* 2. 道具卡片：点击 / hover 展开，键盘 Tab + Enter 同样可用 */
+  var cards = Array.prototype.slice.call(doc.querySelectorAll('[data-tool]'));
+
+  cards.forEach(function (card) {
+    var btn = card.querySelector('.card-btn');
+    if (!btn) { return; }
+
+    function setOpen(open) {
+      card.setAttribute('data-open', open ? 'true' : 'false');
+      btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    }
+
+    function isPinned() { return card.getAttribute('data-pinned') === 'true'; }
+
+    setOpen(card.getAttribute('data-open') === 'true');
+
+    btn.addEventListener('click', function () {
+      var open = btn.getAttribute('aria-expanded') !== 'true';
+      card.setAttribute('data-pinned', open ? 'true' : 'false');
+      setOpen(open);
+    });
+
+    card.addEventListener('mouseenter', function () {
+      if (!isPinned()) { setOpen(true); }
+    });
+
+    card.addEventListener('mouseleave', function () {
+      if (isPinned()) { return; }
+      if (doc.activeElement === btn) { return; }
+      setOpen(false);
+    });
+
+    btn.addEventListener('blur', function () {
+      if (isPinned()) { return; }
+      setOpen(false);
+    });
+  });
+
+  /* 3. 彩蛋：打开四次元口袋，道具会从口袋里弹出来（减少动效时不做动画） */
   var facts = [
     '口袋的入口连着四次元空间，理论上装得下整个世界。大雄曾经在里面找过一只袜子，没找到。',
     '他是量产型的育儿机器人，出厂时掉了一颗螺丝，所以情绪比说明书上写的多一点。',
@@ -727,16 +1074,30 @@
     '口袋里的东西看着乱，其实他总能第一时间摸出你需要的那件——这才是最不像机器的地方。'
   ];
 
-  var btn = doc.getElementById('pocketBtn');
-  var out = doc.getElementById('pocketOut');
+  var pbtn = doc.getElementById('pocketBtn');
+  var stage = doc.getElementById('pocketStage');
+  var pout = doc.getElementById('pocketOut');
+  var label = pbtn ? pbtn.querySelector('.pocket-label') : null;
   var last = -1;
 
-  if (btn && out) {
-    btn.addEventListener('click', function () {
-      var i = Math.floor(Math.random() * facts.length);
-      if (facts.length > 1 && i === last) { i = (i + 1) % facts.length; }
-      last = i;
-      out.textContent = facts[i];
+  if (pbtn && stage && pout) {
+    pbtn.addEventListener('click', function () {
+      var open = stage.getAttribute('data-open') !== 'true';
+
+      stage.setAttribute('data-open', open ? 'true' : 'false');
+      pbtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+      if (label) {
+        label.textContent = open ? '把口袋收起来' : '打开四次元口袋';
+      }
+
+      if (open) {
+        var i = Math.floor(Math.random() * facts.length);
+        if (facts.length > 1 && i === last) { i = (i + 1) % facts.length; }
+        last = i;
+        pout.textContent = facts[i];
+      } else {
+        pout.textContent = '口袋里有点回声，按一下试试。';
+      }
     });
   }
 })();
